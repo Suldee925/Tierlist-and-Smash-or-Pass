@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="mn">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Smash / Pass</title>
+  <style>
+    body{background:#000;color:#fff;font-family:sans-serif;text-align:center;padding:20px}
+    a{color:#bbb}
+    img{width:min(520px,92vw);aspect-ratio:1/1;object-fit:cover;border-radius:14px;border:1px solid #222;background:#111}
+    .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+    button{padding:12px 18px;border:none;border-radius:10px;cursor:pointer;font-weight:800}
+    .smash{background:#7c5cff;color:#fff}
+    .pass{background:#222;color:#fff;border:1px solid #333}
+    .chip{display:inline-block;background:#111;border:1px solid #222;border-radius:999px;padding:8px 12px;margin:6px}
+  </style>
+</head>
+<body>
+  <h1>🔥 Smash / Pass</h1>
+  <div><a href="./index.html">← menu</a></div>
+
+  <div style="margin-top:12px">
+    <img id="pic" alt="image"/>
+  </div>
+
+  <div class="row">
+    <button class="smash" id="smashBtn">Smash</button>
+    <button class="pass" id="passBtn">Pass</button>
+    <button class="pass" id="skipBtn">Skip</button>
+    <button class="pass" id="shuffleBtn">Shuffle</button>
+  </div>
+
+  <div style="margin-top:10px">
+    <span class="chip">Index: <span id="idx">0</span>/<span id="total">0</span></span>
+    <span class="chip">Smash: <span id="s">0</span></span>
+    <span class="chip">Pass: <span id="p">0</span></span>
+  </div>
+
+  <script src="./smash.js"></script>
+</body>
+</html>

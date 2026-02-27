@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Best Picker</title>
+</head>
+<body style="background:black;color:white;text-align:center">
+
+<h2>👑 Best Picker</h2>
+<div id="arena"></div>
+
+<script>
+let allImages = [];
+let current = [];
+let nextRound = [];
+let index = 0;
+
+// imageSrc -> wins
+let wins = Object.create(null);
+
+function shuffle(arr){
+  for(let i = arr.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+function pickRandomN(arr, n){
+  const copy = arr.slice();
+  shuffle(copy);
+  return copy.slice(0, n);
+}
+
+async function load(){
+  const res = await fetch("/api/images");
+  const data = await res.json();
+  allImages = (data.images || []).map(n => "/images/" + encodeURIComponent(n));
+
+  if(allImages.length < 2){
+    document.body.innerHTML += "<h3>images/ folder дотор зураг хий!</h3>";
+    return;
+  }
+
+  // ✅ random 32 (if more than 32)
+  shuffle(allImages);
+  current = allImages.length > 32 ? pickRandomN(allImages, 32) : allImages.slice();
+
+  // ✅ wins init
+  wins = Object.create(null);
+  for(const src of current) wins[src] = 0;
+
+  // ✅ bracket requires even count; if odd, drop last (rare if <32 and odd)
+  if(current.length % 2 === 1) current.pop();
+
+  startRound();
+}
+
+function startRound(){
+  nextRound = [];
+  index = 0;
+  showPair();
+}
+
+function roundName(len){
+  // len = number of players in current round
+  if(len >= 32) return "Round of 32";
+  if(len === 16) return "Round of 16";
+  if(len === 8) return "Quarterfinal";
+  if(len === 4) return "Semifinal";
+  if(len === 2) return "Final";
+  return `Round (${len})`;
+}
+
+function showPair(){
+  // finished this round
+  if(index >= current.length){
+    current = nextRound;
+
+    if(current.length === 1){
+      showWinner(current[0]);
+      return;
+    }
+
+    // ensure even
+    if(current.length % 2 === 1) current.pop();
+    startRound();
+    return;
+  }
+
+  const arena = document.getElementById("arena");
+  arena.innerHTML = "";
+
+  const title = document.createElement("div");
+  title.style.margin = "10px";
+  title.innerHTML = `<div style="opacity:.8">🏁 ${roundName(current.length)} · Match ${index/2 + 1}/${current.length/2}</div>`;
+  arena.appendChild(title);
+
+  const left = current[index];
+  const right = current[index + 1];
+
+  const img1 = document.createElement("img");
+  img1.src = left;
+  img1.width = 320;
+  img1.style.margin = "10px";
+  img1.style.cursor = "pointer";
+  img1.style.borderRadius = "14px";
+  img1.style.border = "1px solid #222";
+  img1.onclick = () => pick(left);
+
+  const img2 = document.createElement("img");
+  img2.src = right;
+  img2.width = 320;
+  img2.style.margin = "10px";
+  img2.style.cursor = "pointer";
+  img2.style.borderRadius = "14px";
+  img2.style.border = "1px solid #222";
+  img2.onclick = () => pick(right);
+
+  arena.appendChild(img1);
+  arena.appendChild(img2);
+}
+
+function pick(winner){
+  // ✅ count win
+  wins[winner] = (wins[winner] || 0) + 1;
+
+  nextRound.push(winner);
+  index += 2;
+  showPair();
+}
+
+function basename(url){
+  try{
+    const u = new URL(url, window.location.origin);
+    const p = u.pathname.split("/").pop() || "";
+    return decodeURIComponent(p);
+  }catch{
+    return url;
+  }
+}
+
+function showWinner(winner){
+  // ✅ leaderboard: sort by wins desc
+  const rows = Object.entries(wins)
+    .sort((a,b) => (b[1] - a[1]) || a[0].localeCompare(b[0]));
+
+  let html = `
+    <h1 style="text-align:center;color:white">🏆 WINNER</h1>
+    <div style="text-align:center;margin:10px;color:#bbb">
+      Winner wins: <b style="color:white">${wins[winner] ?? 0}</b>
+    </div>
+    <div style="text-align:center">
+      <img src="${winner}" width="420" style="border-radius:14px;border:1px solid #222;background:#111">
+    </div>
+    <h2 style="text-align:center;margin-top:18px">📊 Leaderboard (Wins)</h2>
+    <div style="max-width:900px;margin:0 auto;padding:10px">
+      <div style="display:grid;grid-template-columns:70px 1fr 90px;gap:10px;align-items:center;color:#bbb;padding:6px 8px;border-bottom:1px solid #222">
+        <div>#</div><div>Image</div><div style="text-align:right">Wins</div>
+      </div>
+  `;
+
+  rows.forEach(([src, w], idx) => {
+    html += `
+      <div style="display:grid;grid-template-columns:70px 1fr 90px;gap:10px;align-items:center;padding:10px 8px;border-bottom:1px solid #111">
+        <div style="color:#bbb">${idx+1}</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <img src="${src}" width="54" height="54" style="object-fit:cover;border-radius:10px;border:1px solid #222;background:#111">
+          <div style="color:white;word-break:break-all">${basename(src)}</div>
+        </div>
+        <div style="text-align:right;color:white;font-weight:800">${w}</div>
+      </div>
+    `;
+  });
+
+  html += `</div><div style="text-align:center;margin:18px">
+    <a href="./index.html" style="color:#bbb">← menu</a>
+  </div>`;
+
+  document.body.innerHTML = html;
+}
+
+load();
+</script>
+</body>
+</html>

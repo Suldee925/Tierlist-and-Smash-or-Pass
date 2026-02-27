@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="mn">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Tier List</title>
+  <style>
+    body{background:#000;color:#fff;font-family:sans-serif;padding:18px}
+    a{color:#bbb}
+    h1{margin:0}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+    button{padding:10px 14px;border:none;border-radius:10px;cursor:pointer;font-weight:800;background:#222;color:#fff;border:1px solid #333}
+    .row{display:flex;gap:10px;align-items:stretch;margin:8px 0}
+    .label{width:60px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:900}
+    .drop{
+      flex:1; min-height:110px; padding:10px; border-radius:12px;
+      border:1px dashed #333; background:#0e0e0e;
+      display:flex; flex-wrap:wrap; gap:8px;
+    }
+    .thumb{
+      width:84px;height:84px;object-fit:cover;border-radius:12px;
+      border:1px solid #222;background:#111;cursor:grab;
+    }
+    .poolTitle{opacity:.8;margin-top:14px}
+  </style>
+</head>
+<body>
+  <div class="top">
+    <div>
+      <h1>🏆 Tier List</h1>
+      <div><a href="./index.html">← menu</a> · <span id="cnt">0</span> images</div>
+    </div>
+    <div>
+      <button id="resetBtn">Reset</button>
+      <button id="exportBtn">Export JSON</button>
+    </div>
+  </div>
+
+  <div class="poolTitle">🧺 Pool</div>
+  <div id="pool" class="drop"></div>
+
+  <div id="tiers"></div>
+
+  <script src="./tier.js"></script>
+</body>
+</html>
